@@ -3,27 +3,21 @@
 import { useState } from "react";
 import type { ContactRequestBody } from "@/app/api/contact/route";
 
-type FormData = {
-  name: string;
-  email: string;
-  message: string;
-};
-
-const initialFormData: FormData = {
+const initialFormData: ContactRequestBody = {
   name: "",
   email: "",
   message: "",
 };
 
-const initialErrors: FormData = {
+const initialErrors: ContactRequestBody = {
   name: "",
   email: "",
   message: "",
 };
 
 export default function ContactPage() {
-  const [formData, setFormData] = useState<FormData>(initialFormData);
-  const [errors, setErrors] = useState<FormData>(initialErrors);
+  const [formData, setFormData] = useState<ContactRequestBody>(initialFormData);
+  const [errors, setErrors] = useState<ContactRequestBody>(initialErrors);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -83,7 +77,7 @@ export default function ContactPage() {
   };
 
   const validate = () => {
-    const newErrors: FormData = { name: "", email: "", message: "" };
+    const newErrors: ContactRequestBody  = { name: "", email: "", message: "" };
 
     if (!formData.name) {
       newErrors.name = "お名前は必須です。";
