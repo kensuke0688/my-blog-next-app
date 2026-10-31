@@ -1,5 +1,5 @@
 import { Prisma } from "@/app/generated/prisma/client";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type CreatePostRequestBody = {
@@ -32,13 +32,8 @@ function serializePost(post: PostWithCategories): SerializedPost {
 }
 
 export async function GET(request: Request) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies PostsErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const posts = await prisma.post.findMany({
@@ -60,13 +55,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies PostsErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const body: CreatePostRequestBody = await request.json();

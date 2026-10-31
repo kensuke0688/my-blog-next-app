@@ -1,5 +1,5 @@
 import type { Category } from "@/app/generated/prisma/client";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type CreateCategoryRequestBody = {
@@ -15,13 +15,8 @@ export type CategoriesErrorResponseBody = {
 };
 
 export async function GET(request: Request) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies CategoriesErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const categories = await prisma.category.findMany({
@@ -42,13 +37,8 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies CategoriesErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   try {
     const body: CreateCategoryRequestBody = await request.json();

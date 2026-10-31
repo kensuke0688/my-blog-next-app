@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import type { ListPostsResponseBody } from "@/app/api/admin/posts/route";
+import type { ListPostsResponseBody, PostsErrorResponseBody } from "@/app/api/admin/posts/route";
 import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<ListPostsResponseBody>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     const fetcher = async () => {
@@ -28,6 +29,30 @@ export default function AdminPostsPage() {
 
     fetcher();
   }, []);
+
+  const handleDelete = async (postId: number) => {
+    if (!window.confirm("この記事を削除しますか?")) return;
+
+    setDeletingId(postId);
+    try {
+      const res = await fetchWithAuth(`/api/admin/posts/${postId}`, {
+        method: "DELETE",
+      });
+
+      if (!res.ok) {
+        const data: PostsErrorResponseBody | null = await res
+          .json()
+          .catch(() => null);
+        throw new Error(data?.error ?? `削除に失敗しました。(status: ${res.status})`);
+      }
+
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "削除に失敗しました。");
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   return (
     <div className="px-8 py-8">
@@ -50,11 +75,11 @@ export default function AdminPostsPage() {
 
       <ul className="divide-y divide-gray-200">
         {posts.map((post) => (
-          <li key={post.id}>
-            <Link
-              href={`/admin/posts/${post.id}`}
-              className="block py-5 hover:bg-gray-50"
-            >
+          <li
+            key={post.id}
+            className="flex items-center justify-between gap-4 py-5 hover:bg-gray-50"
+          >
+            <Link href={`/admin/posts/${post.id}`} className="flex-1">
               <h2 className="font-bold text-gray-900">{post.title}</h2>
               <time
                 dateTime={post.createdAt}
@@ -63,6 +88,14 @@ export default function AdminPostsPage() {
                 {new Date(post.createdAt).toLocaleDateString("ja-JP")}
               </time>
             </Link>
+            <button
+              type="button"
+              onClick={() => handleDelete(post.id)}
+              disabled={deletingId === post.id}
+              className="flex-shrink-0 text-red-500 hover:underline text-sm disabled:text-gray-400"
+            >
+              削除
+            </button>
           </li>
         ))}
       </ul>

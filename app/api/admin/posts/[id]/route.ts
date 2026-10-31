@@ -1,5 +1,5 @@
 import { Prisma } from "@/app/generated/prisma/client";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type UpdatePostRequestBody = {
@@ -36,13 +36,8 @@ function serializePost(post: PostWithCategories): SerializedPost {
 }
 
 export async function GET(request: Request, { params }: RouteContext) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies PostErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   const { id } = await params;
   const postId = Number(id);
@@ -79,13 +74,8 @@ export async function GET(request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies PostErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   const { id } = await params;
   const postId = Number(id);
@@ -131,6 +121,42 @@ export async function PUT(request: Request, { params }: RouteContext) {
 
     return Response.json(
       { error: "記事の更新に失敗しました。" } satisfies PostErrorResponseBody,
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request, { params }: RouteContext) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
+  const { id } = await params;
+  const postId = Number(id);
+
+  if (Number.isNaN(postId)) {
+    return Response.json(
+      { error: "不正なIDです。" } satisfies PostErrorResponseBody,
+      { status: 400 }
+    );
+  }
+
+  try {
+    const existing = await prisma.post.findUnique({ where: { id: postId } });
+    if (!existing) {
+      return Response.json(
+        { error: "記事が見つかりません。" } satisfies PostErrorResponseBody,
+        { status: 404 }
+      );
+    }
+
+    await prisma.post.delete({ where: { id: postId } });
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("[admin/posts/:id] failed to delete post:", error);
+
+    return Response.json(
+      { error: "記事の削除に失敗しました。" } satisfies PostErrorResponseBody,
       { status: 500 }
     );
   }

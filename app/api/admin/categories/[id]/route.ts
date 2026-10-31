@@ -1,5 +1,5 @@
 import type { Category } from "@/app/generated/prisma/client";
-import { requireUser } from "@/lib/auth";
+import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type UpdateCategoryRequestBody = {
@@ -21,13 +21,8 @@ type RouteContext = {
 };
 
 export async function GET(request: Request, { params }: RouteContext) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies CategoryErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   const { id } = await params;
   const categoryId = Number(id);
@@ -63,13 +58,8 @@ export async function GET(request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const user = await requireUser(request);
-  if (!user) {
-    return Response.json(
-      { error: "認証が必要です。" } satisfies CategoryErrorResponseBody,
-      { status: 401 }
-    );
-  }
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
 
   const { id } = await params;
   const categoryId = Number(id);
@@ -105,6 +95,44 @@ export async function PUT(request: Request, { params }: RouteContext) {
 
     return Response.json(
       { error: "カテゴリーの更新に失敗しました。" } satisfies CategoryErrorResponseBody,
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request, { params }: RouteContext) {
+  const authError = await requireAdmin(request);
+  if (authError) return authError;
+
+  const { id } = await params;
+  const categoryId = Number(id);
+
+  if (Number.isNaN(categoryId)) {
+    return Response.json(
+      { error: "不正なIDです。" } satisfies CategoryErrorResponseBody,
+      { status: 400 }
+    );
+  }
+
+  try {
+    const existing = await prisma.category.findUnique({
+      where: { id: categoryId },
+    });
+    if (!existing) {
+      return Response.json(
+        { error: "カテゴリーが見つかりません。" } satisfies CategoryErrorResponseBody,
+        { status: 404 }
+      );
+    }
+
+    await prisma.category.delete({ where: { id: categoryId } });
+
+    return new Response(null, { status: 204 });
+  } catch (error) {
+    console.error("[admin/categories/:id] failed to delete category:", error);
+
+    return Response.json(
+      { error: "カテゴリーの削除に失敗しました。" } satisfies CategoryErrorResponseBody,
       { status: 500 }
     );
   }
