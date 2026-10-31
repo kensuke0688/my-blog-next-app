@@ -1,4 +1,5 @@
 import { Prisma } from "@/app/generated/prisma/client";
+import type { SerializedPost } from "@/app/api/admin/posts/route";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
@@ -13,11 +14,6 @@ export type UpdatePostRequestBody = {
 type PostWithCategories = Prisma.PostGetPayload<{
   include: { categories: { include: { category: true } } };
 }>;
-
-// JSONでは Date は ISO 文字列になるため、レスポンス型では string として扱う
-export type SerializedPost = Omit<PostWithCategories, "createdAt"> & {
-  createdAt: string;
-};
 
 export type GetPostResponseBody = SerializedPost;
 

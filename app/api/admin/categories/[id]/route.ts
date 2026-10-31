@@ -1,12 +1,10 @@
-import type { Category } from "@/app/generated/prisma/client";
+import type { CategoryResponseBody } from "@/app/api/admin/categories/route";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 export type UpdateCategoryRequestBody = {
   name: string;
 };
-
-export type CategoryResponseBody = Category;
 
 export type GetCategoryResponseBody = CategoryResponseBody;
 
