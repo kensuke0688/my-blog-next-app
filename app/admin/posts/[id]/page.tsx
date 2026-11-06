@@ -11,7 +11,6 @@ import type {
   UpdatePostRequestBody,
 } from "@/app/api/admin/posts/[id]/route";
 import type { ListCategoriesResponseBody } from "@/app/api/admin/categories/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function EditPostPage() {
   const router = useRouter();
@@ -28,8 +27,8 @@ export default function EditPostPage() {
     const fetcher = async () => {
       try {
         const [postRes, categoriesRes] = await Promise.all([
-          fetchWithAuth(`/api/admin/posts/${id}`),
-          fetchWithAuth("/api/admin/categories"),
+          fetch(`/api/admin/posts/${id}`),
+          fetch("/api/admin/categories"),
         ]);
 
         if (!postRes.ok) {
@@ -65,7 +64,7 @@ export default function EditPostPage() {
   const handleSubmit = async (values: PostFormValues) => {
     const body: UpdatePostRequestBody = values;
 
-    const res = await fetchWithAuth(`/api/admin/posts/${id}`, {
+    const res = await fetch(`/api/admin/posts/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),
