@@ -11,7 +11,6 @@ import type {
   CreatePostResponseBody,
 } from "@/app/api/admin/posts/route";
 import type { ListCategoriesResponseBody } from "@/app/api/admin/categories/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function NewPostPage() {
   const router = useRouter();
@@ -22,7 +21,7 @@ export default function NewPostPage() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetchWithAuth("/api/admin/categories");
+        const res = await fetch("/api/admin/categories");
         if (!res.ok) {
           throw new Error(`カテゴリーの取得に失敗しました。(status: ${res.status})`);
         }
@@ -41,7 +40,7 @@ export default function NewPostPage() {
   const handleSubmit = async (values: PostFormValues) => {
     const body: CreatePostRequestBody = values;
 
-    const res = await fetchWithAuth("/api/admin/posts", {
+    const res = await fetch("/api/admin/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

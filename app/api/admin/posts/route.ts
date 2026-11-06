@@ -31,8 +31,8 @@ function serializePost(post: PostWithCategories): SerializedPost {
   return { ...post, createdAt: post.createdAt.toISOString() };
 }
 
-export async function GET(request: Request) {
-  const authError = await requireAdmin(request);
+export async function GET() {
+  const authError = await requireAdmin();
   if (authError) return authError;
 
   try {
@@ -55,7 +55,7 @@ export async function GET(request: Request) {
 }
 
 export async function POST(request: Request) {
-  const authError = await requireAdmin(request);
+  const authError = await requireAdmin();
   if (authError) return authError;
 
   try {

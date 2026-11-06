@@ -1,8 +1,12 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase/client";
+import type {
+  SignInRequestBody,
+  SignInErrorResponseBody,
+} from "@/app/api/auth/sign_in/route";
 
 export default function SignInPage() {
   const router = useRouter();
@@ -14,15 +18,21 @@ export default function SignInPage() {
     e.preventDefault();
     setIsSubmitting(true);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
+    const body: SignInRequestBody = { email, password };
+
+    const res = await fetch("/api/auth/sign_in", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
     });
 
     setIsSubmitting(false);
 
-    if (error) {
-      alert(error.message);
+    if (!res.ok) {
+      const data: SignInErrorResponseBody | null = await res
+        .json()
+        .catch(() => null);
+      alert(data?.error ?? "ログインに失敗しました。");
       return;
     }
 
@@ -77,6 +87,13 @@ export default function SignInPage() {
           ログイン
         </button>
       </form>
+
+      <p className="mt-6 text-sm text-gray-500">
+        アカウントをお持ちでない方は
+        <Link href="/sign_up" className="text-blue-600 hover:underline">
+          会員登録
+        </Link>
+      </p>
     </div>
   );
 }

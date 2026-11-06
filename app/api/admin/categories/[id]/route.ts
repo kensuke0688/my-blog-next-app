@@ -19,7 +19,7 @@ type RouteContext = {
 };
 
 export async function GET(request: Request, { params }: RouteContext) {
-  const authError = await requireAdmin(request);
+  const authError = await requireAdmin();
   if (authError) return authError;
 
   const { id } = await params;
@@ -56,7 +56,7 @@ export async function GET(request: Request, { params }: RouteContext) {
 }
 
 export async function PUT(request: Request, { params }: RouteContext) {
-  const authError = await requireAdmin(request);
+  const authError = await requireAdmin();
   if (authError) return authError;
 
   const { id } = await params;
@@ -99,7 +99,7 @@ export async function PUT(request: Request, { params }: RouteContext) {
 }
 
 export async function DELETE(request: Request, { params }: RouteContext) {
-  const authError = await requireAdmin(request);
+  const authError = await requireAdmin();
   if (authError) return authError;
 
   const { id } = await params;
