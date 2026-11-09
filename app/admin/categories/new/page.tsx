@@ -8,7 +8,6 @@ import type {
   CreateCategoryRequestBody,
   CategoryResponseBody,
 } from "@/app/api/admin/categories/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function NewCategoryPage() {
   const router = useRouter();
@@ -16,7 +15,7 @@ export default function NewCategoryPage() {
   const handleSubmit = async (values: CategoryFormValues) => {
     const body: CreateCategoryRequestBody = values;
 
-    const res = await fetchWithAuth("/api/admin/categories", {
+    const res = await fetch("/api/admin/categories", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

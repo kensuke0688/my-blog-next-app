@@ -9,7 +9,6 @@ import type {
   GetCategoryResponseBody,
   UpdateCategoryRequestBody,
 } from "@/app/api/admin/categories/[id]/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function EditCategoryPage() {
   const router = useRouter();
@@ -23,7 +22,7 @@ export default function EditCategoryPage() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetchWithAuth(`/api/admin/categories/${id}`);
+        const res = await fetch(`/api/admin/categories/${id}`);
         if (!res.ok) {
           throw new Error(`カテゴリーの取得に失敗しました。(status: ${res.status})`);
         }
@@ -42,7 +41,7 @@ export default function EditCategoryPage() {
   const handleSubmit = async (values: CategoryFormValues) => {
     const body: UpdateCategoryRequestBody = values;
 
-    const res = await fetchWithAuth(`/api/admin/categories/${id}`, {
+    const res = await fetch(`/api/admin/categories/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(body),

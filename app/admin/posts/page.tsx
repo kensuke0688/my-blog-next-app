@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ListPostsResponseBody, PostsErrorResponseBody } from "@/app/api/admin/posts/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<ListPostsResponseBody>([]);
@@ -14,7 +13,7 @@ export default function AdminPostsPage() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetchWithAuth("/api/admin/posts");
+        const res = await fetch("/api/admin/posts");
         if (!res.ok) {
           throw new Error(`記事一覧の取得に失敗しました。(status: ${res.status})`);
         }
@@ -35,7 +34,7 @@ export default function AdminPostsPage() {
 
     setDeletingId(postId);
     try {
-      const res = await fetchWithAuth(`/api/admin/posts/${postId}`, {
+      const res = await fetch(`/api/admin/posts/${postId}`, {
         method: "DELETE",
       });
 

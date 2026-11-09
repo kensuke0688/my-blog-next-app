@@ -6,7 +6,6 @@ import type {
   ListCategoriesResponseBody,
   CategoriesErrorResponseBody,
 } from "@/app/api/admin/categories/route";
-import { fetchWithAuth } from "@/lib/supabase/fetchWithAuth";
 
 export default function AdminCategoriesPage() {
   const [categories, setCategories] = useState<ListCategoriesResponseBody>([]);
@@ -17,7 +16,7 @@ export default function AdminCategoriesPage() {
   useEffect(() => {
     const fetcher = async () => {
       try {
-        const res = await fetchWithAuth("/api/admin/categories");
+        const res = await fetch("/api/admin/categories");
         if (!res.ok) {
           throw new Error(
             `カテゴリー一覧の取得に失敗しました。(status: ${res.status})`
@@ -40,7 +39,7 @@ export default function AdminCategoriesPage() {
 
     setDeletingId(categoryId);
     try {
-      const res = await fetchWithAuth(`/api/admin/categories/${categoryId}`, {
+      const res = await fetch(`/api/admin/categories/${categoryId}`, {
         method: "DELETE",
       });
 
