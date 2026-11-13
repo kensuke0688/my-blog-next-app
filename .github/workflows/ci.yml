@@ -31,10 +31,9 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Type check
-        run: npx tsc --noEmit
-
-      - name: Build
+      # next buildは型チェックも内包しており、Next.js独自の型(LayoutProps等)も
+      # build時に生成されるため、独立したtsc --noEmitステップは用意しない
+      - name: Build (includes type check)
         run: npm run build
 
       - name: Unit tests (Vitest)
