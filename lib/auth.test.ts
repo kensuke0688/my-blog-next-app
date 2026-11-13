@@ -25,8 +25,10 @@ describe("requireAdmin", () => {
   });
 
   test("Supabase側がエラーを返した場合も401を返す", async () => {
+    // data.userはあえて管理者本人(truthy)にしておく。
+    // こうしないと「!data.userが原因で401」なのか「errorが原因で401」なのか区別できない。
     getUserMock.mockResolvedValue({
-      data: { user: null },
+      data: { user: { id: "admin-id" } },
       error: { message: "invalid token" },
     });
 
