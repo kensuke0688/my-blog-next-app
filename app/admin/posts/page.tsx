@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import type { ListPostsResponseBody, PostsErrorResponseBody } from "@/app/api/admin/posts/route";
+import PostListItem from "@/app/admin/posts/_components/PostListItem";
 
 export default function AdminPostsPage() {
   const [posts, setPosts] = useState<ListPostsResponseBody>([]);
@@ -74,28 +75,12 @@ export default function AdminPostsPage() {
 
       <ul className="divide-y divide-gray-200">
         {posts.map((post) => (
-          <li
+          <PostListItem
             key={post.id}
-            className="flex items-center justify-between gap-4 py-5 hover:bg-gray-50"
-          >
-            <Link href={`/admin/posts/${post.id}`} className="flex-1">
-              <h2 className="font-bold text-gray-900">{post.title}</h2>
-              <time
-                dateTime={post.createdAt}
-                className="text-sm text-gray-500"
-              >
-                {new Date(post.createdAt).toLocaleDateString("ja-JP")}
-              </time>
-            </Link>
-            <button
-              type="button"
-              onClick={() => handleDelete(post.id)}
-              disabled={deletingId === post.id}
-              className="flex-shrink-0 text-red-500 hover:underline text-sm disabled:text-gray-400"
-            >
-              削除
-            </button>
-          </li>
+            post={post}
+            isDeleting={deletingId === post.id}
+            onDelete={handleDelete}
+          />
         ))}
       </ul>
     </div>
