@@ -16,7 +16,6 @@ model User {
   id    Int    @id @default(autoincrement())
   name  String
   posts Post[]
-  likes Like[]
 
   @@map("users")
 }
@@ -30,7 +29,6 @@ model Post {
   userId       Int            @map("user_id")
   user         User           @relation(fields: [userId], references: [id])
   categories   PostCategory[]
-  likes        Like[]
 
   @@map("posts")
 }
@@ -54,14 +52,3 @@ model PostCategory {
   @@map("post_categories")
 }
 
-model Like {
-  id        Int      @id @default(autoincrement())
-  userId    Int      @map("user_id")
-  postId    Int      @map("post_id")
-  user      User     @relation(fields: [userId], references: [id])
-  post      Post     @relation(fields: [postId], references: [id])
-  createdAt DateTime @default(now()) @map("create_at")
-
-  @@unique([userId, postId])
-  @@map("likes")
-}
