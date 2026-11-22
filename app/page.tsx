@@ -11,6 +11,7 @@ type Post = {
   categories: string[];
   tags: string[];
   content: string;
+  commentCount: number;
 };
 
 export default function Home() {
@@ -74,6 +75,9 @@ export default function Home() {
                   className="text-gray-500 text-sm line-clamp-2"
                   dangerouslySetInnerHTML={{ __html: post.content }}
                 />
+                <span className="text-xs text-gray-400">
+                  コメント {post.commentCount}件
+                </span>
               </div>
             </Link>
           </li>

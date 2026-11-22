@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import CommentSection from "./_components/CommentSection";
 
 type Article = {
   id: number;
@@ -12,6 +13,7 @@ type Article = {
   categories: string[];
   tags: string[];
   content: string;
+  authorId: number;
 };
 
 export default function ArticleDetailPage() {
@@ -73,7 +75,8 @@ export default function ArticleDetailPage() {
           />
         </div>
       </div>
-      <Link href="/" className="text-blue-500 hover:underline">
+      <CommentSection postId={article.id} authorId={article.authorId} />
+      <Link href="/" className="mt-10 block text-blue-500 hover:underline">
         記事一覧に戻る
       </Link>
     </div>
