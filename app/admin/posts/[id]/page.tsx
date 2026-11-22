@@ -50,6 +50,7 @@ export default function EditPostPage() {
           thumbnailUrl: post.thumbnailUrl,
           userId: post.userId,
           categoryIds: post.categories.map((pc) => pc.categoryId),
+          tags: post.tags.map((pt) => pt.tag.name),
         });
       } catch (err) {
         setError(err instanceof Error ? err.message : "エラーが発生しました。");

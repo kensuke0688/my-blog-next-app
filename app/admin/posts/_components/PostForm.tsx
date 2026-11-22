@@ -6,6 +6,7 @@ import {
   THUMBNAIL_MAX_SIZE_BYTES,
   uploadThumbnail,
 } from "@/lib/supabase/storage";
+import TagInput from "./TagInput";
 
 export type PostFormCategory = {
   id: number;
@@ -18,6 +19,7 @@ export type PostFormValues = {
   thumbnailUrl: string;
   userId: number;
   categoryIds: number[];
+  tags: string[];
 };
 
 type PostFormProps = {
@@ -44,6 +46,7 @@ export default function PostForm({
   const [categoryIds, setCategoryIds] = useState<number[]>(
     initialValues?.categoryIds ?? []
   );
+  const [tags, setTags] = useState<string[]>(initialValues?.tags ?? []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -107,6 +110,7 @@ export default function PostForm({
         thumbnailUrl,
         userId: parsedUserId,
         categoryIds,
+        tags,
       });
     } catch (err) {
       setError(err instanceof Error ? err.message : "保存に失敗しました。");
@@ -204,6 +208,18 @@ export default function PostForm({
             </label>
           ))}
         </div>
+      </div>
+
+      <div className="grid grid-cols-[160px_1fr] items-start gap-4">
+        <label htmlFor="tags" className="pt-2 text-sm font-medium text-gray-700">
+          タグ
+        </label>
+        <TagInput
+          id="tags"
+          value={tags}
+          onChange={setTags}
+          disabled={isSubmitting}
+        />
       </div>
 
       {error && <p className="text-red-500 text-sm">{error}</p>}

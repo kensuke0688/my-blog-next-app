@@ -29,6 +29,7 @@ model Post {
   userId       Int            @map("user_id")
   user         User           @relation(fields: [userId], references: [id])
   categories   PostCategory[]
+  tags         PostTag[]
 
   @@map("posts")
 }
@@ -50,5 +51,24 @@ model PostCategory {
   @@id([postId, categoryId])
   @@unique([postId, categoryId])
   @@map("post_categories")
+}
+
+model Tag {
+  id    Int       @id @default(autoincrement())
+  name  String
+  posts PostTag[]
+
+  @@map("tags")
+}
+
+model PostTag {
+  postId Int  @map("post_id")
+  tagId  Int  @map("tag_id")
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+  tag    Tag  @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([postId, tagId])
+  @@unique([postId, tagId])
+  @@map("post_tags")
 }
 

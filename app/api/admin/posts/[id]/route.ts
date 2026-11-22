@@ -2,6 +2,7 @@ import { Prisma } from "@/app/generated/prisma/client";
 import type { SerializedPost } from "@/app/api/admin/posts/route";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveTagIds } from "@/lib/tags";
 
 export type UpdatePostRequestBody = {
   title: string;
@@ -9,10 +10,14 @@ export type UpdatePostRequestBody = {
   thumbnailUrl: string;
   userId: number;
   categoryIds: number[];
+  tags: string[];
 };
 
 type PostWithCategories = Prisma.PostGetPayload<{
-  include: { categories: { include: { category: true } } };
+  include: {
+    categories: { include: { category: true } };
+    tags: { include: { tag: true } };
+  };
 }>;
 
 export type GetPostResponseBody = SerializedPost;
@@ -48,7 +53,10 @@ export async function GET(request: Request, { params }: RouteContext) {
   try {
     const post = await prisma.post.findUnique({
       where: { id: postId },
-      include: { categories: { include: { category: true } } },
+      include: {
+        categories: { include: { category: true } },
+        tags: { include: { tag: true } },
+      },
     });
 
     if (!post) {
@@ -94,8 +102,11 @@ export async function PUT(request: Request, { params }: RouteContext) {
       );
     }
 
-    const [, post] = await prisma.$transaction([
+    const tagIds = await resolveTagIds(body.tags);
+
+    const [, , post] = await prisma.$transaction([
       prisma.postCategory.deleteMany({ where: { postId } }),
+      prisma.postTag.deleteMany({ where: { postId } }),
       prisma.post.update({
         where: { id: postId },
         data: {
@@ -106,8 +117,14 @@ export async function PUT(request: Request, { params }: RouteContext) {
           categories: {
             create: body.categoryIds.map((categoryId) => ({ categoryId })),
           },
+          tags: {
+            create: tagIds.map((tagId) => ({ tagId })),
+          },
         },
-        include: { categories: { include: { category: true } } },
+        include: {
+          categories: { include: { category: true } },
+          tags: { include: { tag: true } },
+        },
       }),
     ]);
 
