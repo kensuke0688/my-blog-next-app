@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import HeartIcon from "@/app/components/HeartIcon";
 
 type Post = {
   id: number;
@@ -11,6 +12,8 @@ type Post = {
   categories: string[];
   tags: string[];
   content: string;
+  commentCount: number;
+  likeCount: number;
 };
 
 export default function Home() {
@@ -37,7 +40,7 @@ export default function Home() {
       <h1 className="text-2xl font-bold text-gray-900 mb-6">記事一覧</h1>
       <ul className="divide-y divide-gray-200">
         {posts.map((post) => (
-          <li className="flex gap-6 py-6" key={post.id}>
+          <li className="flex flex-col gap-2 py-6" key={post.id}>
             <Link href={`/article/${post.id}`} className="flex gap-6">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -76,6 +79,17 @@ export default function Home() {
                 />
               </div>
             </Link>
+            <div className="flex items-center gap-4 text-xs text-gray-400">
+              <span>コメント {post.commentCount}件</span>
+              <span
+                className={`inline-flex items-center gap-1 ${
+                  post.likeCount > 0 ? "text-red-500" : "text-gray-400"
+                }`}
+              >
+                <HeartIcon filled={post.likeCount > 0} className="w-4 h-4" />
+                {post.likeCount}
+              </span>
+            </div>
           </li>
         ))}
       </ul>

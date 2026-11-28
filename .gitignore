@@ -56,3 +56,7 @@ node_modules/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+
+# Claude Code (personal/runtime, not shared)
+.claude/settings.local.json
+.claude/scheduled_tasks.lock

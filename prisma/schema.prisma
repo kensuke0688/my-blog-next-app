@@ -13,9 +13,12 @@ datasource db {
 }
 
 model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  posts Post[]
+  id         Int       @id @default(autoincrement())
+  name       String
+  authUserId String?   @unique @map("auth_user_id")
+  posts      Post[]
+  comments   Comment[]
+  likes      Like[]
 
   @@map("users")
 }
@@ -30,8 +33,36 @@ model Post {
   user         User           @relation(fields: [userId], references: [id])
   categories   PostCategory[]
   tags         PostTag[]
+  comments     Comment[]
+  likes        Like[]
 
   @@map("posts")
+}
+
+model Comment {
+  id        Int      @id @default(autoincrement())
+  content   String
+  postId    Int      @map("post_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([postId])
+  @@map("comments")
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  postId    Int      @map("post_id")
+  userId    Int      @map("user_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([postId, userId])
+  @@map("likes")
 }
 
 model Category {

@@ -1,4 +1,5 @@
 import { createClient } from "@/lib/supabase/createClient";
+import { getOrCreateCurrentUser } from "@/lib/currentUser";
 
 export type MeResponseBody =
   | {
@@ -6,6 +7,7 @@ export type MeResponseBody =
       userId: string;
       email: string | null;
       isAdmin: boolean;
+      prismaUserId: number;
     }
   | {
       isLoggedIn: false;
@@ -19,10 +21,17 @@ export async function GET() {
     return Response.json({ isLoggedIn: false } satisfies MeResponseBody);
   }
 
+  const currentUser = await getOrCreateCurrentUser();
+
+  if (!currentUser) {
+    return Response.json({ isLoggedIn: false } satisfies MeResponseBody);
+  }
+
   return Response.json({
     isLoggedIn: true,
     userId: data.user.id,
     email: data.user.email ?? null,
     isAdmin: data.user.id === process.env.BLOG_ADMIN_USER_ID,
+    prismaUserId: currentUser.id,
   } satisfies MeResponseBody);
 }

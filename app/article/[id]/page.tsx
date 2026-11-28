@@ -3,6 +3,10 @@
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
+import CommentSection from "./_components/CommentSection";
+import LikeButton from "@/app/components/LikeButton";
+import type { MeResponseBody } from "@/app/api/auth/me/route";
+import type { GetLikeStatusResponseBody } from "@/app/api/posts/[id]/likes/route";
 
 type Article = {
   id: number;
@@ -17,18 +21,29 @@ type Article = {
 export default function ArticleDetailPage() {
   const { id } = useParams<{ id: string }>();
   const [article, setArticle] = useState<Article | null>(null);
+  const [me, setMe] = useState<MeResponseBody | null>(null);
+  const [likeStatus, setLikeStatus] =
+    useState<GetLikeStatusResponseBody | null>(null);
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch(`/api/posts/${id}`);
-      const data = await res.json();
-      setArticle(data.post);
+      const [postRes, meRes, likeRes] = await Promise.all([
+        fetch(`/api/posts/${id}`),
+        fetch("/api/auth/me"),
+        fetch(`/api/posts/${id}/likes`),
+      ]);
+      const postData = await postRes.json();
+      const meData: MeResponseBody = await meRes.json();
+      const likeData: GetLikeStatusResponseBody = await likeRes.json();
+      setArticle(postData.post);
+      setMe(meData);
+      setLikeStatus(likeData);
     };
 
     fetcher();
   }, [id]);
 
-  if (!article) {
+  if (!article || !likeStatus) {
     return <p>記事を読み込み中です...</p>;
   }
 
@@ -64,16 +79,23 @@ export default function ArticleDetailPage() {
               </Link>
             ))}
           </div>
-          <h2 className="font-bold text-2xl text-gray-900">
-            {article.title}
-          </h2>
+          <h2 className="font-bold text-2xl text-gray-900">{article.title}</h2>
+          <div className="pt-4">
+            <LikeButton
+              postId={article.id}
+              initialLikeCount={likeStatus.likeCount}
+              initialLikedByMe={likeStatus.likedByMe}
+              isLoggedIn={me?.isLoggedIn ?? false}
+            />
+          </div>
           <div
             className="text-gray-500 text-base pt-6"
             dangerouslySetInnerHTML={{ __html: article.content }}
           />
         </div>
       </div>
-      <Link href="/" className="text-blue-500 hover:underline">
+      <CommentSection postId={article.id} />
+      <Link href="/" className="mt-10 block text-blue-500 hover:underline">
         記事一覧に戻る
       </Link>
     </div>

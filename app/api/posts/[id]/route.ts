@@ -20,7 +20,7 @@ export async function GET(request: Request, { params }: RouteContext) {
   if (Number.isNaN(postId)) {
     return Response.json(
       { error: "不正なIDです。" } satisfies PublicPostErrorResponseBody,
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -29,13 +29,14 @@ export async function GET(request: Request, { params }: RouteContext) {
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } },
+      _count: { select: { comments: true, likes: true } },
     },
   });
 
   if (!post) {
     return Response.json(
       { error: "記事が見つかりません。" } satisfies PublicPostErrorResponseBody,
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -48,6 +49,8 @@ export async function GET(request: Request, { params }: RouteContext) {
       categories: post.categories.map((pc) => pc.category.name),
       tags: post.tags.map((pt) => pt.tag.name),
       content: post.content,
+      commentCount: post._count.comments,
+      likeCount: post._count.likes,
     },
   } satisfies GetPublicPostResponseBody);
 }
