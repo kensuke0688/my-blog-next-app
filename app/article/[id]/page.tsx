@@ -16,7 +16,6 @@ type Article = {
   categories: string[];
   tags: string[];
   content: string;
-  authorId: number;
 };
 
 export default function ArticleDetailPage() {
@@ -95,7 +94,7 @@ export default function ArticleDetailPage() {
           />
         </div>
       </div>
-      <CommentSection postId={article.id} authorId={article.authorId} />
+      <CommentSection postId={article.id} />
       <Link href="/" className="mt-10 block text-blue-500 hover:underline">
         記事一覧に戻る
       </Link>

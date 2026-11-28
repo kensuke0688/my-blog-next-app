@@ -30,7 +30,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   if (Number.isNaN(commentId)) {
     return Response.json(
       { error: "不正なIDです。" } satisfies CommentErrorResponseBody,
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -39,7 +39,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
   if (!currentUser) {
     return Response.json(
       { error: "ログインが必要です。" } satisfies CommentErrorResponseBody,
-      { status: 401 }
+      { status: 401 },
     );
   }
 
@@ -49,15 +49,17 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
   if (!existingComment) {
     return Response.json(
-      { error: "コメントが見つかりません。" } satisfies CommentErrorResponseBody,
-      { status: 404 }
+      {
+        error: "コメントが見つかりません。",
+      } satisfies CommentErrorResponseBody,
+      { status: 404 },
     );
   }
 
   if (existingComment.userId !== currentUser.id) {
     return Response.json(
       { error: "権限がありません。" } satisfies CommentErrorResponseBody,
-      { status: 403 }
+      { status: 403 },
     );
   }
 
@@ -66,8 +68,10 @@ export async function PATCH(request: Request, { params }: RouteContext) {
 
   if (!content) {
     return Response.json(
-      { error: "コメントを入力してください。" } satisfies CommentErrorResponseBody,
-      { status: 400 }
+      {
+        error: "コメントを入力してください。",
+      } satisfies CommentErrorResponseBody,
+      { status: 400 },
     );
   }
 
@@ -76,7 +80,7 @@ export async function PATCH(request: Request, { params }: RouteContext) {
       {
         error: `コメントは${MAX_CONTENT_LENGTH}文字以内で入力してください。`,
       } satisfies CommentErrorResponseBody,
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -104,7 +108,7 @@ export async function DELETE(request: Request, { params }: RouteContext) {
   if (Number.isNaN(commentId)) {
     return Response.json(
       { error: "不正なIDです。" } satisfies CommentErrorResponseBody,
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -113,29 +117,30 @@ export async function DELETE(request: Request, { params }: RouteContext) {
   if (!currentUser) {
     return Response.json(
       { error: "ログインが必要です。" } satisfies CommentErrorResponseBody,
-      { status: 401 }
+      { status: 401 },
     );
   }
 
   const existingComment = await prisma.comment.findUnique({
     where: { id: commentId },
-    include: { post: true },
   });
 
   if (!existingComment) {
     return Response.json(
-      { error: "コメントが見つかりません。" } satisfies CommentErrorResponseBody,
-      { status: 404 }
+      {
+        error: "コメントが見つかりません。",
+      } satisfies CommentErrorResponseBody,
+      { status: 404 },
     );
   }
 
   const isCommentOwner = existingComment.userId === currentUser.id;
-  const isPostAuthor = existingComment.post.userId === currentUser.id;
+  const isAdmin = currentUser.authUserId === process.env.BLOG_ADMIN_USER_ID;
 
-  if (!isCommentOwner && !isPostAuthor) {
+  if (!isCommentOwner && !isAdmin) {
     return Response.json(
       { error: "権限がありません。" } satisfies CommentErrorResponseBody,
-      { status: 403 }
+      { status: 403 },
     );
   }
 

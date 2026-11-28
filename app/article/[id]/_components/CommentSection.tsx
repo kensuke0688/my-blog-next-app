@@ -16,10 +16,9 @@ import type {
 
 type CommentSectionProps = {
   postId: number;
-  authorId: number;
 };
 
-export default function CommentSection({ postId, authorId }: CommentSectionProps) {
+export default function CommentSection({ postId }: CommentSectionProps) {
   const [comments, setComments] = useState<PublicComment[]>([]);
   const [me, setMe] = useState<MeResponseBody | null>(null);
   const [newContent, setNewContent] = useState("");
@@ -44,7 +43,7 @@ export default function CommentSection({ postId, authorId }: CommentSectionProps
   }, [postId]);
 
   const prismaUserId = me?.isLoggedIn ? me.prismaUserId : null;
-  const isPostAuthor = prismaUserId !== null && prismaUserId === authorId;
+  const isAdmin = me?.isLoggedIn ? me.isAdmin : false;
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -112,7 +111,9 @@ export default function CommentSection({ postId, authorId }: CommentSectionProps
 
       const data: UpdateCommentResponseBody = await res.json();
       setComments((prev) =>
-        prev.map((comment) => (comment.id === commentId ? data.comment : comment))
+        prev.map((comment) =>
+          comment.id === commentId ? data.comment : comment,
+        ),
       );
       cancelEditing();
     } catch (err) {
@@ -151,10 +152,13 @@ export default function CommentSection({ postId, authorId }: CommentSectionProps
       <ul className="space-y-4 mb-8">
         {comments.map((comment) => {
           const isOwner = prismaUserId === comment.user.id;
-          const canDelete = isOwner || isPostAuthor;
+          const canDelete = isOwner || isAdmin;
 
           return (
-            <li key={comment.id} className="border border-gray-200 rounded-md p-4">
+            <li
+              key={comment.id}
+              className="border border-gray-200 rounded-md p-4"
+            >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-medium text-gray-700">
                   {comment.user.name}

@@ -49,7 +49,6 @@ export async function GET(request: Request, { params }: RouteContext) {
       categories: post.categories.map((pc) => pc.category.name),
       tags: post.tags.map((pt) => pt.tag.name),
       content: post.content,
-      authorId: post.userId,
       commentCount: post._count.comments,
       likeCount: post._count.likes,
     },
