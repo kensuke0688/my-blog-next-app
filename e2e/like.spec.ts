@@ -9,10 +9,6 @@ if (!ADMIN_EMAIL || !ADMIN_PASSWORD) {
   );
 }
 
-// いいねの切り替えは楽観的更新のため、見た目の変化だけでなく
-// トグルAPIのレスポンスが返るまで待ってから次の操作に進む。
-// 待たずにテストを終えると、ページが閉じられてリクエストが
-// 中断され、サーバー側の状態が更新されないまま残ることがある。
 async function clickLikeAndWaitForToggle(page: Page, likeButton: Locator) {
   await Promise.all([
     page.waitForResponse(
@@ -43,8 +39,6 @@ test.describe("いいね機能", () => {
     const likeButton = page.getByRole("button", { name: /いいね/ });
     await expect(likeButton).toBeVisible();
 
-    // 前回実行の後片付けが何らかの理由で失敗し、いいね済み状態が残っている
-    // 可能性があるため、未いいね状態から始まるよう保証する。
     if ((await likeButton.getAttribute("aria-pressed")) === "true") {
       await clickLikeAndWaitForToggle(page, likeButton);
       await expect(likeButton).toHaveAttribute("aria-pressed", "false");
@@ -63,7 +57,6 @@ test.describe("いいね機能", () => {
         page.getByRole("button", { name: /いいね/ }).locator("span"),
       ).toHaveText(String(initialCount + 1));
     } finally {
-      // 後片付け: もう一度トグルしていいねを取り消し、元の件数に戻す
       await clickLikeAndWaitForToggle(
         page,
         page.getByRole("button", { name: /いいね/ }),
@@ -79,7 +72,6 @@ test.describe("いいね機能", () => {
 
     await page.goto("/");
 
-    // 一覧ページにはいいねを押すボタンが存在しないこと(件数表示のみ)を確認する。
     await expect(page.getByRole("button", { name: /いいね/ })).toHaveCount(0);
 
     const firstCard = page.locator("li").filter({ hasText: posts[0].title });
