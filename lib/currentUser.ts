@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import type { User } from "@/app/generated/prisma/client";
 
 // ログイン中のSupabase Authユーザーに対応するPrisma Userを返す。
-// 初回ログイン時はauthUserIdで紐づくUser行がまだ無いため、READER権限で自動作成する。
+// 初回ログイン時はauthUserIdで紐づくUser行がまだ無いため自動作成する。
 // 未ログインの場合はnullを返す。
 export async function getOrCreateCurrentUser(): Promise<User | null> {
   const supabase = await createClient();
@@ -27,7 +27,6 @@ export async function getOrCreateCurrentUser(): Promise<User | null> {
     data: {
       authUserId,
       name: data.user.email ?? "名無しユーザー",
-      role: "READER",
     },
   });
 }

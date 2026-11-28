@@ -12,16 +12,10 @@ datasource db {
   provider = "postgresql"
 }
 
-enum Role {
-  READER
-  AUTHOR
-}
-
 model User {
   id         Int       @id @default(autoincrement())
   name       String
   authUserId String?   @unique @map("auth_user_id")
-  role       Role      @default(READER)
   posts      Post[]
   comments   Comment[]
   likes      Like[]

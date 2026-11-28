@@ -8,7 +8,6 @@ export type MeResponseBody =
       email: string | null;
       isAdmin: boolean;
       prismaUserId: number;
-      role: "READER" | "AUTHOR";
     }
   | {
       isLoggedIn: false;
@@ -34,6 +33,5 @@ export async function GET() {
     email: data.user.email ?? null,
     isAdmin: data.user.id === process.env.BLOG_ADMIN_USER_ID,
     prismaUserId: currentUser.id,
-    role: currentUser.role,
   } satisfies MeResponseBody);
 }
