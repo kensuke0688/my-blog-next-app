@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import HeartIcon from "@/app/components/HeartIcon";
 import type { ToggleLikeResponseBody } from "@/app/api/posts/[id]/likes/route";
 
 type LikeButtonProps = {
@@ -9,7 +10,6 @@ type LikeButtonProps = {
   initialLikeCount: number;
   initialLikedByMe: boolean;
   isLoggedIn: boolean;
-  size?: "sm" | "md";
 };
 
 export default function LikeButton({
@@ -17,15 +17,11 @@ export default function LikeButton({
   initialLikeCount,
   initialLikedByMe,
   isLoggedIn,
-  size = "md",
 }: LikeButtonProps) {
   const [likeCount, setLikeCount] = useState(initialLikeCount);
   const [likedByMe, setLikedByMe] = useState(initialLikedByMe);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [isToggling, setIsToggling] = useState(false);
-
-  const iconSizeClass = size === "sm" ? "w-4 h-4" : "w-5 h-5";
-  const textSizeClass = size === "sm" ? "text-xs" : "text-sm";
 
   const handleClick = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -74,25 +70,13 @@ export default function LikeButton({
       <button
         type="button"
         onClick={handleClick}
-        className={`inline-flex items-center gap-1 ${textSizeClass} ${
+        className={`inline-flex items-center gap-1 text-sm ${
           likedByMe ? "text-red-500" : "text-gray-400"
         } hover:text-red-500`}
         aria-pressed={likedByMe}
         aria-label={likedByMe ? "いいねを取り消す" : "いいねする"}
       >
-        <svg
-          viewBox="0 0 24 24"
-          className={iconSizeClass}
-          fill={likedByMe ? "currentColor" : "none"}
-          stroke="currentColor"
-          strokeWidth={1.8}
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
-          />
-        </svg>
+        <HeartIcon filled={likedByMe} />
         <span>{likeCount}</span>
       </button>
       {showLoginPrompt && (
