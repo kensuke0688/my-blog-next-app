@@ -9,6 +9,7 @@ type Post = {
   thumbnailUrl: string;
   createdAt: string;
   categories: string[];
+  tags: string[];
   content: string;
 };
 
@@ -18,9 +19,7 @@ export default function Home() {
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch(
-        "https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts"
-      );
+      const res = await fetch("/api/posts");
       const data = await res.json();
       setPosts(data.posts);
       setLoading(false);
@@ -57,6 +56,14 @@ export default function Home() {
                       className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs"
                     >
                       {category}
+                    </span>
+                  ))}
+                  {post.tags.map((tag) => (
+                    <span
+                      key={tag}
+                      className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs"
+                    >
+                      #{tag}
                     </span>
                   ))}
                 </div>

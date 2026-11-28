@@ -1,6 +1,7 @@
 import { Prisma } from "@/app/generated/prisma/client";
 import { requireAdmin } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { resolveTagIds } from "@/lib/tags";
 
 export type CreatePostRequestBody = {
   title: string;
@@ -8,10 +9,14 @@ export type CreatePostRequestBody = {
   thumbnailUrl: string;
   userId: number;
   categoryIds: number[];
+  tags: string[];
 };
 
 type PostWithCategories = Prisma.PostGetPayload<{
-  include: { categories: { include: { category: true } } };
+  include: {
+    categories: { include: { category: true } };
+    tags: { include: { tag: true } };
+  };
 }>;
 
 // JSONでは Date は ISO 文字列になるため、レスポンス型では string として扱う
@@ -37,7 +42,10 @@ export async function GET() {
 
   try {
     const posts = await prisma.post.findMany({
-      include: { categories: { include: { category: true } } },
+      include: {
+        categories: { include: { category: true } },
+        tags: { include: { tag: true } },
+      },
       orderBy: { createdAt: "desc" },
     });
 
@@ -60,6 +68,7 @@ export async function POST(request: Request) {
 
   try {
     const body: CreatePostRequestBody = await request.json();
+    const tagIds = await resolveTagIds(body.tags);
 
     const post = await prisma.post.create({
       data: {
@@ -70,9 +79,13 @@ export async function POST(request: Request) {
         categories: {
           create: body.categoryIds.map((categoryId) => ({ categoryId })),
         },
+        tags: {
+          create: tagIds.map((tagId) => ({ tagId })),
+        },
       },
       include: {
         categories: { include: { category: true } },
+        tags: { include: { tag: true } },
       },
     });
 

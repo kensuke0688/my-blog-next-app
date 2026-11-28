@@ -10,6 +10,7 @@ type Article = {
   thumbnailUrl: string;
   createdAt: string;
   categories: string[];
+  tags: string[];
   content: string;
 };
 
@@ -19,9 +20,7 @@ export default function ArticleDetailPage() {
 
   useEffect(() => {
     const fetcher = async () => {
-      const res = await fetch(
-        `https://1hmfpsvto6.execute-api.ap-northeast-1.amazonaws.com/dev/posts/${id}`
-      );
+      const res = await fetch(`/api/posts/${id}`);
       const data = await res.json();
       setArticle(data.post);
     };
@@ -54,6 +53,15 @@ export default function ArticleDetailPage() {
               >
                 {category}
               </span>
+            ))}
+            {article.tags.map((tag) => (
+              <Link
+                key={tag}
+                href={`/tags/${encodeURIComponent(tag)}`}
+                className="bg-gray-100 text-gray-600 rounded-full px-3 py-1 text-xs hover:bg-gray-200"
+              >
+                #{tag}
+              </Link>
             ))}
           </div>
           <h2 className="font-bold text-2xl text-gray-900">
