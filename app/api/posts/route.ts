@@ -10,6 +10,7 @@ export type PublicPost = {
   content: string;
   authorId: number;
   commentCount: number;
+  likeCount: number;
 };
 
 export type ListPublicPostsResponseBody = {
@@ -22,12 +23,16 @@ export async function GET(request: Request) {
 
   const posts = await prisma.post.findMany({
     where: tag
-      ? { tags: { some: { tag: { name: { equals: tag, mode: "insensitive" } } } } }
+      ? {
+          tags: {
+            some: { tag: { name: { equals: tag, mode: "insensitive" } } },
+          },
+        }
       : undefined,
     include: {
       categories: { include: { category: true } },
       tags: { include: { tag: true } },
-      _count: { select: { comments: true } },
+      _count: { select: { comments: true, likes: true } },
     },
     orderBy: { createdAt: "desc" },
   });
@@ -43,6 +48,7 @@ export async function GET(request: Request) {
       content: post.content,
       authorId: post.userId,
       commentCount: post._count.comments,
+      likeCount: post._count.likes,
     })),
   } satisfies ListPublicPostsResponseBody);
 }
