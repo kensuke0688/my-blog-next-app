@@ -25,7 +25,8 @@
 
 ## 認証・権限
 
-- 管理者判定は`User.role`ではなく、環境変数`BLOG_ADMIN_USER_ID`とSupabase Authの`user.id`の一致で行う(`lib/auth.ts`の`requireAdmin()`、`proxy.ts`)。`Role`(`READER`/`AUTHOR`)は現状どこでも権限チェックに使われていない項目なので、権限制御に使うなら実装が必要。
+- 管理者判定は環境変数`BLOG_ADMIN_USER_ID`とSupabase Authの`user.id`の一致で行う(`lib/auth.ts`の`requireAdmin()`、`proxy.ts`、`app/api/comments/[id]/route.ts`のコメント削除権限)。`User.role`(`READER`/`AUTHOR`)カラムは未使用のまま残っていたため削除済み。読者/投稿者を区別する要件が再度出たら別途設計する。
+- スキーマ項目(カラム・enum等)を削除するコミットでは、同じコミットでCLAUDE.md内の該当する記述も削除・更新する。
 - ログイン中のPrisma `User`行は`lib/currentUser.ts`の`getOrCreateCurrentUser()`で取得する。未ログインは`null`を返す(401を投げない)。初回ログイン時は`authUserId`で自動作成されるので、新規ユーザー作成を自前で実装しない。
 
 ## DBマイグレーションの運用ルール(重要)
